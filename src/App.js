@@ -1,24 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import { Configuration, OpenAIApi } from "openai";
+import { InputBox } from "./InputBox";
+
+const configuration = new Configuration({
+  apiKey: process.env.REACT_APP_API_KEY,
+});
+const openai = new OpenAIApi(configuration);
 
 function App() {
+  const [userPrompt, setUserPrompt] = useState("");
+  const [number, setNumber] = useState(1);
+  const [size, setSize] = useState("256x256");
+  const [imageUrl, setImageUrl] = useState("");
+
+  const generateImage = async () => {
+    const imageParameters = {
+      prompt: userPrompt,
+      n: parseInt(number),
+      size: size,
+    };
+    const response = await openai.createImage(imageParameters);
+    const urlData = response.data.data[0].url;
+    setImageUrl(urlData);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <main className="App">
+      <h1>Describe your SOCH!</h1>
+      <br />
+      <img src="/soch_transparentbg 1.png" alt="" />
+      {imageUrl && <img src={imageUrl} className="image" alt="ai thing" />}
+      <InputBox label={"Description"} setAttribute={setUserPrompt} />
+      <InputBox label={"Amount"} setAttribute={setNumber} />
+      {/* <InputBox label={"Size"} setAttribute={setSize} /> */}
+      <button className="main-button" onClick={() => generateImage()}>
+        Generate
+      </button>
+    </main>
   );
 }
 
